@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Animation: Iu Mun Cute Pink Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Thiết lập nền chung */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FCE4EC; /* Màu nền ngoài cùng hồng rất nhạt */
+            font-family: 'Mali', cursive; /* Sử dụng font chữ cute */
+        }
+
+        /* Khung cảnh chính */
+        #scene {
+            width: 800px; /* Làm rộng hơn xíu cho thoáng */
+            height: 350px; /* Cao hơn xíu để chữ to không bị chật */
+            position: relative;
+            overflow: hidden;
+            /* Màu nền trời hồng cánh sen nhẹ */
+            background-color: #F8BBD0; 
+            /* Đường kẻ làm mặt đất màu hồng đậm */
+            border-bottom: 8px solid #C2185B; 
+            border-radius: 15px; /* Bo góc khung cảnh cho mềm mại */
+            box-shadow: 0 10px 20px rgba(194, 24, 91, 0.2); /* Tạo bóng đổ nhẹ màu hồng */
+        }
+
+        /* === 1. Hiệu ứng Mèo (Đã thay đổi để dùng ảnh) === */
+        #cat {
+            position: absolute;
+            bottom: 5px; /* Nhích lên một chút so với mặt đất */
+            left: 50px;
+            /* Đã bỏ font-size vì dùng ảnh */
+            
+            /* Chuyển động nảy lên xuống tạo cảm giác chạy */
+            animation: run 0.2s infinite alternate ease-in-out;
+            z-index: 2; /* Đảm bảo mèo chạy đè lên mây nếu cần */
+        }
+
+        /* CSS thêm cho hình ảnh con mèo */
+        #cat img {
+            width: 100px; /* Định kích thước cho ảnh mèo */
+            height: auto;
+            display: block;
+        }
+
+        @keyframes run {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-12px) rotate(-3deg); } /* Nảy cao hơn và lắc nhẹ */
+        }
+
+        /* === 2. Hiệu ứng Dòng chữ bay === */
+        #flying-text {
+            position: absolute;
+            /* Căn giữa theo chiều dọc */
+            top: 50%;
+            transform: translateY(-50%); 
+            
+            left: 100%; /* Bắt đầu từ ngoài cùng bên phải */
+            
+            /* Style cho chữ */
+            font-size: 45px; /* Chữ to hơn nhiều */
+            font-weight: bold;
+            color: #FFFFFF; /* Màu chữ trắng tinh khôi */
+            /* Tạo viền/bóng chữ màu hồng đậm cho nổi bật */
+            text-shadow: 3px 3px 0px #EC407A, -2px -2px 5px rgba(255,255,255,0.5);
+            white-space: nowrap;
+            
+            /* Bay chậm hơn một chút cho dễ đọc */
+            animation: fly 5s infinite linear; 
+            z-index: 3; /* Chữ bay ở lớp trên cùng */
+        }
+
+        @keyframes fly {
+            /* Lưu ý: Phải giữ lại translateY(-50%) trong keyframes để không bị mất căn giữa */
+            0% { left: 110%; transform: translateY(-50%); }
+            100% { left: -60%; transform: translateY(-50%); } /* Bay khuất hẳn sang trái */
+        }
+        
+        /* === 3. Đám mây trôi nền (Đã thêm nhiều mây hơn) === */
+        .cloud {
+            position: absolute;
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.7); /* Màu trắng hơi trong suốt */
+            animation: cloud-move infinite linear;
+            z-index: 1;
+        }
+        /* Mây cũ */
+        .cloud1 { top: 40px; left: 100%; animation-duration: 12s; }
+        .cloud2 { top: 100px; left: 100%; animation-duration: 9s; animation-delay: 3s; font-size: 30px; }
+        
+        /* Mây mới thêm vào - thay đổi vị trí, kích thước và tốc độ cho tự nhiên */
+        .cloud3 { top: 20px; left: 100%; animation-duration: 15s; animation-delay: 1s; font-size: 25px; opacity: 0.6; }
+        .cloud4 { top: 150px; left: 100%; animation-duration: 10s; animation-delay: 5s; font-size: 35px; }
+        .cloud5 { top: 80px; left: 100%; animation-duration: 18s; animation-delay: 7s; font-size: 20px; opacity: 0.5; }
+
+
+        @keyframes cloud-move {
+            0% { left: 100%; opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { left: -20%; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scene">
+        <div class="cloud cloud1">☁️</div>
+        <div class="cloud cloud2">☁️</div>
+        <div class="cloud cloud3">☁️</div>
+        <div class="cloud cloud4">☁️</div>
+        <div class="cloud cloud5">☁️</div>
+        
+        <div id="flying-text">Iu mun cute ❤️</div>
+        
+        <div id="cat">
+            <img src="meo.png" alt="Cute Cat Icon">
+        </div>
+    </div>
+
+</body>
+</html>
