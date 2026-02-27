@@ -156,14 +156,14 @@
 
         <div id="game-over" class="overlay">
             <h2>Ui da! Đụng trúng rồi!</h2>
-            <img src="meo.png" alt="Mèo khóc" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Khoc'">
+            <img src="meo_fail.png" alt="Mèo khóc" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Khoc'">
             <button class="btn" onclick="startGame()">Chơi Lại Nè</button>
         </div>
 
         <div id="victory" class="overlay">
             <h2>🎉 Yayyy! Mun Giỏi Quá! 🎉</h2>
             <p style="color: #C2185B; font-weight: bold; font-size: 20px;">Đã đạt 305 điểm yêu thương ❤️</p>
-            <img src="meo.png" alt="Mèo vui vẻ" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Vui'">
+            <img src="meo_win.png" alt="Mèo vui vẻ" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Vui'">
             <button class="btn" onclick="startGame()">Chơi Lại Từ Đầu</button>
         </div>
     </div>
@@ -185,11 +185,11 @@
         
         // Mảng cấu hình các chướng ngại vật (Có thể dùng ảnh hoặc Emoji dự phòng)
         const obstacleAssets = [
-            { src: 'meo_1.png', fallback: '🧶' },
-            { src: 'meo_2.png', fallback: '🐁' },
-            { src: 'meo_3.png', fallback: '🐟' },
-            { src: 'meo_4.png', fallback: '🪴' },
-            { src: 'meo_5.png', fallback: '🥛' }
+            { src: 'meo_1.jpg', fallback: '🧶' },
+            { src: 'meo_2.jpg', fallback: '🐁' },
+            { src: 'meo_3.jpg', fallback: '🐟' },
+            { src: 'meo_4.jpg', fallback: '🪴' },
+            { src: 'meo_5.jpg', fallback: '🥛' }
         ];
 
         function jump() {
@@ -343,4 +343,5 @@
     </script>
 </body>
 </html>
+
 
