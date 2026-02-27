@@ -15,7 +15,7 @@
             margin: 0;
             background-color: #FCE4EC;
             font-family: 'Mali', cursive;
-            user-select: none; /* Tránh bôi đen text khi click liên tục */
+            user-select: none;
         }
 
         /* Khung cảnh chính */
@@ -28,10 +28,10 @@
             border-bottom: 8px solid #C2185B; 
             border-radius: 15px;
             box-shadow: 0 10px 20px rgba(194, 24, 91, 0.2);
-            cursor: pointer; /* Hiển thị con trỏ tay để báo hiệu có thể click để nhảy */
+            cursor: pointer;
         }
 
-        /* Điểm số (Góc trái) */
+        /* Điểm số */
         #score-board {
             position: absolute;
             top: 15px;
@@ -55,97 +55,66 @@
         }
 
         #cat img {
-            width: 80px; /* Chỉnh nhỏ lại một chút để dễ né chướng ngại vật */
+            width: 80px; 
             height: auto;
             display: block;
         }
 
-        /* Hiệu ứng chạy mặc định */
-        .running {
-            animation: run 0.2s infinite alternate ease-in-out;
-        }
-
+        .running { animation: run 0.2s infinite alternate ease-in-out; }
         @keyframes run {
             0% { transform: translateY(0) rotate(0deg); }
             100% { transform: translateY(-12px) rotate(-3deg); }
         }
 
-        /* Hiệu ứng nhảy (Ghi đè hiệu ứng chạy) */
-        .jumping {
-            animation: jump 0.6s linear !important; 
-        }
-
+        .jumping { animation: jump 0.6s linear !important; }
         @keyframes jump {
             0% { bottom: 5px; }
-            40% { bottom: 150px; } /* Đỉnh cú nhảy */
-            50% { bottom: 150px; } /* Lơ lửng xíu */
+            40% { bottom: 150px; } 
+            50% { bottom: 150px; } 
             60% { bottom: 150px; }
             100% { bottom: 5px; }
         }
 
-        /* === 2. Chướng ngại vật === */
+        /* === 2. Chướng ngại vật (Cập nhật cho ảnh) === */
         .obstacle {
             position: absolute;
             bottom: 5px;
-            right: -50px; /* Bắt đầu ngoài rìa phải */
-            font-size: 40px; /* Kích thước icon cute */
+            right: -80px; /* Đẩy ra xa thêm một chút để không bị giật lúc xuất hiện */
             z-index: 2;
-            /* Animation được cấu hình bằng JS để đổi tốc độ */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .obstacle img {
+            width: 50px; /* Kích thước ảnh chướng ngại vật */
+            height: auto;
         }
 
         @keyframes moveObstacle {
-            0% { right: -50px; }
-            100% { right: 850px; } /* Chạy ra khỏi màn hình bên trái */
+            0% { right: -80px; }
+            100% { right: 850px; }
         }
 
-        /* === 3. Các màn hình Overlay (Thua / Thắng) === */
+        /* === 3. Màn hình Overlay (Thua / Thắng) === */
         .overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(252, 228, 236, 0.9);
-            display: none; /* Ẩn mặc định */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            text-align: center;
+            display: none; flex-direction: column; justify-content: center;
+            align-items: center; z-index: 20; text-align: center;
         }
 
-        .overlay h2 {
-            font-size: 40px;
-            color: #C2185B;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 0px #FFF;
-        }
-
-        .overlay img {
-            width: 150px;
-            max-height: 150px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
+        .overlay h2 { font-size: 40px; color: #C2185B; margin-bottom: 10px; text-shadow: 2px 2px 0px #FFF; }
+        .overlay img { width: 150px; max-height: 150px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        
         .btn {
-            padding: 10px 30px;
-            font-size: 20px;
-            font-family: 'Mali', cursive;
-            font-weight: bold;
-            color: white;
-            background-color: #EC407A;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 5px 0px #C2185B;
-            transition: all 0.1s;
+            padding: 10px 30px; font-size: 20px; font-family: 'Mali', cursive; font-weight: bold;
+            color: white; background-color: #EC407A; border: none; border-radius: 25px;
+            cursor: pointer; box-shadow: 0 5px 0px #C2185B; transition: all 0.1s;
         }
+        .btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #C2185B; }
 
-        .btn:active {
-            transform: translateY(5px);
-            box-shadow: 0 0px 0px #C2185B;
-        }
-
-        /* === Hiệu ứng Mây và Chữ bay giữ nguyên === */
+        /* === Mây, Chữ bay và Pháo hoa === */
         #flying-text {
             position: absolute; top: 50%; transform: translateY(-50%); left: 100%;
             font-size: 45px; font-weight: bold; color: #FFFFFF;
@@ -162,7 +131,6 @@
         .cloud5 { top: 80px; left: 100%; animation-duration: 18s; animation-delay: 7s; font-size: 20px; opacity: 0.5; }
         @keyframes cloud-move { 0% { left: 100%; opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { left: -20%; opacity: 0; } }
 
-        /* Pháo hoa chúc mừng (ẩn mặc định) */
         .confetti {
             position: absolute; width: 10px; height: 10px; background-color: #f00; z-index: 15;
             animation: confetti-fall 3s linear infinite;
@@ -183,7 +151,7 @@
         <div id="flying-text">Iu mun cute ❤️</div>
         
         <div id="cat" class="running">
-            <img src="meo.png" alt="Cute Cat Icon">
+            <img src="meo.png" alt="Cute Cat">
         </div>
 
         <div id="game-over" class="overlay">
@@ -211,86 +179,94 @@
         let isGameOver = false;
         let isGameWon = false;
         let score = 0;
-        let gameSpeed = 2.5; // Tốc độ ban đầu của chướng ngại vật (giây)
+        let gameSpeed = 2.5; 
         let obstacleInterval;
         let gameLoop;
         
-        // Mảng các icon cute làm chướng ngại vật
-        const cuteIcons = ['🐱', '😸', '😹', '😻', '😽', '🐾', '🐈', '🌈'];
+        // Mảng cấu hình các chướng ngại vật (Có thể dùng ảnh hoặc Emoji dự phòng)
+        const obstacleAssets = [
+            { src: 'meo.png', fallback: '🧶' },
+            { src: 'chuot-do-choi.png', fallback: '🐁' },
+            { src: 'xuong-ca.png', fallback: '🐟' },
+            { src: 'chau-cay.png', fallback: '🪴' },
+            { src: 'coc-nuoc.png', fallback: '🥛' }
+        ];
 
-        // Hàm nhảy
         function jump() {
             if (isJumping || isGameOver || isGameWon) return;
             isJumping = true;
             cat.classList.remove('running');
             cat.classList.add('jumping');
 
-            // Hết thời gian nhảy thì trở lại chạy bình thường
             setTimeout(() => {
                 cat.classList.remove('jumping');
                 if (!isGameOver && !isGameWon) cat.classList.add('running');
                 isJumping = false;
-            }, 600); // 600ms khớp với animation jump trong CSS
+            }, 600); 
         }
 
-        // Bắt sự kiện nhấn phím Space hoặc Click chuột để nhảy
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') jump();
         });
         scene.addEventListener('mousedown', jump);
 
-        // Tạo chướng ngại vật
         function spawnObstacle() {
             if (isGameOver || isGameWon) return;
 
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
-            obstacle.innerText = cuteIcons[Math.floor(Math.random() * cuteIcons.length)];
             
-            // Gắn tốc độ (rút ngắn thời gian để nó chạy nhanh hơn)
+            // Lấy ngẫu nhiên 1 chướng ngại vật từ mảng
+            const randomAsset = obstacleAssets[Math.floor(Math.random() * obstacleAssets.length)];
+            
+            // Tạo thẻ ảnh
+            const img = document.createElement('img');
+            img.src = randomAsset.src;
+            
+            // Nếu không tìm thấy file ảnh trong thư mục, tự động dùng Emoji thay thế
+            img.onerror = () => {
+                obstacle.innerText = randomAsset.fallback;
+                obstacle.style.fontSize = '40px'; 
+                img.remove(); // Xóa thẻ ảnh bị lỗi
+            };
+
+            obstacle.appendChild(img);
             obstacle.style.animation = `moveObstacle ${gameSpeed}s linear`;
             scene.appendChild(obstacle);
 
-            // Xóa chướng ngại vật khi đã ra khỏi màn hình để nhẹ trình duyệt
-            setTimeout(() => {
-                if (obstacle.parentNode && !isGameOver && !isGameWon) {
+            // Bắt sự kiện khi chướng ngại vật chạy hết animation (ra khỏi màn hình)
+            obstacle.addEventListener('animationend', () => {
+                if (!isGameOver && !isGameWon) {
                     obstacle.remove();
-                    updateScore(); // Cộng điểm khi chướng ngại vật đi qua mà không đụng
+                    updateScore(); // Gọi hàm cộng điểm
                 }
-            }, gameSpeed * 1000);
+            });
 
-            // Gọi đệ quy tạo chướng ngại vật tiếp theo ngẫu nhiên từ 1s đến 2.5s
             let randomTime = Math.random() * 1500 + 1000;
             obstacleInterval = setTimeout(spawnObstacle, randomTime);
         }
 
-        // Cập nhật điểm và độ khó
         function updateScore() {
             if (isGameOver || isGameWon) return;
-            score++;
+            score += 5; 
             scoreElement.innerText = score;
 
-            // Kiểm tra điều kiện thắng (Yêu cầu 4)
             if (score >= 305) {
                 winGame();
                 return;
             }
 
-            // Tăng tốc độ mỗi 50 điểm (Yêu cầu 3)
             if (score % 50 === 0 && gameSpeed > 1.0) {
-                gameSpeed -= 0.2; // Giảm thời gian trôi đi (tức là di chuyển nhanh hơn)
+                gameSpeed -= 0.2; 
             }
         }
 
-        // Vòng lặp kiểm tra va chạm
         function checkCollision() {
             const catRect = cat.getBoundingClientRect();
             const obstacles = document.querySelectorAll('.obstacle');
 
             obstacles.forEach(obs => {
                 const obsRect = obs.getBoundingClientRect();
-
-                // Thu nhỏ vùng va chạm lại một chút (hitbox nhỏ hơn hình thật) để game dễ chịu hơn
                 const hitboxTolerence = 15; 
 
                 if (
@@ -304,45 +280,35 @@
             });
         }
 
-        // Kết thúc game (Thua)
         function loseGame() {
             isGameOver = true;
             cat.classList.remove('running', 'jumping');
             clearInterval(gameLoop);
             clearTimeout(obstacleInterval);
             
-            // Dừng mọi chướng ngại vật trên màn hình
-            const obstacles = document.querySelectorAll('.obstacle');
-            obstacles.forEach(obs => {
+            document.querySelectorAll('.obstacle').forEach(obs => {
                 obs.style.animationPlayState = 'paused';
             });
 
-            // Hiện màn hình Game Over (Yêu cầu 1)
             gameOverScreen.style.display = 'flex';
         }
 
-        // Chiến thắng game
         function winGame() {
             isGameWon = true;
             cat.classList.remove('running', 'jumping');
             clearInterval(gameLoop);
             clearTimeout(obstacleInterval);
             
-            // Xóa hết chướng ngại vật
-            const obstacles = document.querySelectorAll('.obstacle');
-            obstacles.forEach(obs => obs.remove());
-
-            // Hiện màn hình Thắng và tạo pháo hoa
+            document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
             victoryScreen.style.display = 'flex';
             createConfetti();
         }
 
-        // Bắt đầu hoặc Chơi lại game
         function startGame() {
             isGameOver = false;
             isGameWon = false;
             score = 0;
-            gameSpeed = 2.5; // Reset tốc độ
+            gameSpeed = 2.5; 
             scoreElement.innerText = score;
             
             gameOverScreen.style.display = 'none';
@@ -350,20 +316,16 @@
             
             cat.classList.add('running');
 
-            // Xóa chướng ngại vật cũ và pháo hoa nếu có
             document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
             document.querySelectorAll('.confetti').forEach(c => c.remove());
 
-            // Reset timers
             clearTimeout(obstacleInterval);
             clearInterval(gameLoop);
 
-            // Bắt đầu lại
             spawnObstacle();
             gameLoop = setInterval(checkCollision, 10);
         }
 
-        // Tạo hiệu ứng pháo hoa lúc thắng
         function createConfetti() {
             const colors = ['#C2185B', '#EC407A', '#F48FB1', '#FFF', '#FFD54F'];
             for(let i=0; i<50; i++) {
@@ -377,10 +339,7 @@
             }
         }
 
-        // Khởi động game lần đầu
         startGame();
-
     </script>
 </body>
 </html>
-
