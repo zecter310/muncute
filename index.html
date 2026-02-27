@@ -32,7 +32,7 @@
         }
 
         /* Điểm số (Góc trái) */
-        #score-board {
+        #-board {
             position: absolute;
             top: 15px;
             left: 20px;
@@ -173,7 +173,7 @@
 <body>
 
     <div id="scene">
-        <div id="score-board">Điểm: <span id="score">0</span></div>
+        <div id="-board">Điểm: <span id="">0</span></div>
 
         <div class="cloud cloud1">☁️</div>
         <div class="cloud cloud2">☁️</div>
@@ -203,14 +203,14 @@
     <script>
         const scene = document.getElementById('scene');
         const cat = document.getElementById('cat');
-        const scoreElement = document.getElementById('score');
+        const Element = document.getElementById('');
         const gameOverScreen = document.getElementById('game-over');
         const victoryScreen = document.getElementById('victory');
         
         let isJumping = false;
         let isGameOver = false;
         let isGameWon = false;
-        let score = 0;
+        let  = 0;
         let gameSpeed = 2.5; // Tốc độ ban đầu của chướng ngại vật (giây)
         let obstacleInterval;
         let gameLoop;
@@ -255,7 +255,7 @@
             setTimeout(() => {
                 if (obstacle.parentNode && !isGameOver && !isGameWon) {
                     obstacle.remove();
-                    updateScore(); // Cộng điểm khi chướng ngại vật đi qua mà không đụng
+                    update(); // Cộng điểm khi chướng ngại vật đi qua mà không đụng
                 }
             }, gameSpeed * 1000);
 
@@ -267,7 +267,7 @@
         // Cập nhật điểm và độ khó
         function updateScore() {
             if (isGameOver || isGameWon) return;
-            score++;
+            score += 5;
             scoreElement.innerText = score;
 
             // Kiểm tra điều kiện thắng (Yêu cầu 4)
@@ -383,3 +383,4 @@
     </script>
 </body>
 </html>
+
