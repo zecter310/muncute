@@ -32,7 +32,7 @@
         }
 
         /* Điểm số (Góc trái) */
-        #-board {
+        #score-board {
             position: absolute;
             top: 15px;
             left: 20px;
@@ -88,7 +88,7 @@
             position: absolute;
             bottom: 5px;
             right: -50px; /* Bắt đầu ngoài rìa phải */
-            font-size: 40px; /* Kích thước  cute */
+            font-size: 40px; /* Kích thước icon cute */
             z-index: 2;
             /* Animation được cấu hình bằng JS để đổi tốc độ */
         }
@@ -173,7 +173,7 @@
 <body>
 
     <div id="scene">
-        <div id="-board">Điểm: <span id="">0</span></div>
+        <div id="score-board">Điểm: <span id="score">0</span></div>
 
         <div class="cloud cloud1">☁️</div>
         <div class="cloud cloud2">☁️</div>
@@ -183,7 +183,7 @@
         <div id="flying-text">Iu mun cute ❤️</div>
         
         <div id="cat" class="running">
-            <img src="meo." alt="Cute Cat Icon">
+            <img src="meo.png" alt="Cute Cat Icon">
         </div>
 
         <div id="game-over" class="overlay">
@@ -203,14 +203,14 @@
     <script>
         const scene = document.getElementById('scene');
         const cat = document.getElementById('cat');
-        const Element = document.getElementById('');
+        const scoreElement = document.getElementById('score');
         const gameOverScreen = document.getElementById('game-over');
         const victoryScreen = document.getElementById('victory');
         
         let isJumping = false;
         let isGameOver = false;
         let isGameWon = false;
-        let  = 0;
+        let score = 0;
         let gameSpeed = 2.5; // Tốc độ ban đầu của chướng ngại vật (giây)
         let obstacleInterval;
         let gameLoop;
@@ -255,7 +255,7 @@
             setTimeout(() => {
                 if (obstacle.parentNode && !isGameOver && !isGameWon) {
                     obstacle.remove();
-                    update(); // Cộng điểm khi chướng ngại vật đi qua mà không đụng
+                    updateScore(); // Cộng điểm khi chướng ngại vật đi qua mà không đụng
                 }
             }, gameSpeed * 1000);
 
@@ -267,7 +267,7 @@
         // Cập nhật điểm và độ khó
         function updateScore() {
             if (isGameOver || isGameWon) return;
-            score += 5;
+            score++;
             scoreElement.innerText = score;
 
             // Kiểm tra điều kiện thắng (Yêu cầu 4)
@@ -383,6 +383,3 @@
     </script>
 </body>
 </html>
-
-
-
