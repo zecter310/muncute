@@ -75,28 +75,25 @@
             100% { bottom: 5px; }
         }
 
-        /* === 2. Chướng ngại vật (Cập nhật cho ảnh) === */
+        /* === 2. Chướng ngại vật === */
         .obstacle {
             position: absolute;
             bottom: 5px;
-            right: -80px; /* Đẩy ra xa thêm một chút để không bị giật lúc xuất hiện */
+            right: -80px; 
             z-index: 2;
             display: flex;
             justify-content: center;
             align-items: flex-end;
         }
 
-        .obstacle img {
-            width: 50px; /* Kích thước ảnh chướng ngại vật */
-            height: auto;
-        }
+        .obstacle img { width: 50px; height: auto; }
 
         @keyframes moveObstacle {
             0% { right: -80px; }
             100% { right: 850px; }
         }
 
-        /* === 3. Màn hình Overlay (Thua / Thắng) === */
+        /* === 3. Màn hình Overlay chung === */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(252, 228, 236, 0.9);
@@ -114,7 +111,46 @@
         }
         .btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #C2185B; }
 
-        /* === Mây, Chữ bay và Pháo hoa === */
+        /* === 4. BẢNG THÔNG BÁO NHÚN NHẢY (VICTORY MODAL) === */
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 25px;
+            border: 5px dashed #F48FB1;
+            box-shadow: 0 15px 35px rgba(194, 24, 91, 0.3);
+            /* Mặc định ẩn để chờ animation */
+            transform: scale(0);
+        }
+
+        /* Animation nảy lên như thạch (Jelly Bounce) */
+        .bounce-in {
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            70% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* === 5. HIỆU ỨNG CƠN MƯA TRÁI TIM (HEART CONFETTI) === */
+        .confetti-heart {
+            position: absolute;
+            z-index: 25; /* Đè lên cả bảng thông báo */
+            pointer-events: none;
+            user-select: none;
+            animation: fall-and-sway linear infinite;
+        }
+
+        /* Hiệu ứng rơi lả tả và lắc lư nhẹ */
+        @keyframes fall-and-sway {
+            0% { top: -50px; transform: translateX(0) rotate(0deg); opacity: 1; }
+            50% { transform: translateX(30px) rotate(180deg); }
+            100% { top: 400px; transform: translateX(-30px) rotate(360deg); opacity: 0; }
+        }
+
+        /* === Mây và Chữ bay === */
         #flying-text {
             position: absolute; top: 50%; transform: translateY(-50%); left: 100%;
             font-size: 45px; font-weight: bold; color: #FFFFFF;
@@ -131,11 +167,6 @@
         .cloud5 { top: 80px; left: 100%; animation-duration: 18s; animation-delay: 7s; font-size: 20px; opacity: 0.5; }
         @keyframes cloud-move { 0% { left: 100%; opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { left: -20%; opacity: 0; } }
 
-        .confetti {
-            position: absolute; width: 10px; height: 10px; background-color: #f00; z-index: 15;
-            animation: confetti-fall 3s linear infinite;
-        }
-        @keyframes confetti-fall { 0% { top: -10px; transform: rotate(0deg); } 100% { top: 400px; transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -161,10 +192,13 @@
         </div>
 
         <div id="victory" class="overlay">
-            <h2>🎉 Yayyy! Mun Giỏi Quá! 🎉</h2>
-            <p style="color: #C2185B; font-weight: bold; font-size: 20px;">Đã đạt 305 điểm yêu thương ❤️</p>
-            <img src="meo_win.png" alt="Mèo vui vẻ" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Vui'">
-            <button class="btn" onclick="startGame()">Chơi Lại Từ Đầu</button>
+            <div class="modal-content" id="victory-modal">
+                <h2>🎉 Yayyy! Mun Giỏi Quá! 🎉</h2>
+                <p style="color: #C2185B; font-weight: bold; font-size: 20px;">Đã đạt 305 điểm yêu thương ❤️</p>
+                <img src="meo_win.png" alt="Mèo vui vẻ" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Vui'">
+                <br>
+                <button class="btn" onclick="startGame()">Chơi Lại Từ Đầu</button>
+            </div>
         </div>
     </div>
 
@@ -174,6 +208,7 @@
         const scoreElement = document.getElementById('score');
         const gameOverScreen = document.getElementById('game-over');
         const victoryScreen = document.getElementById('victory');
+        const victoryModal = document.getElementById('victory-modal'); // Bắt ID của bảng thông báo
         
         let isJumping = false;
         let isGameOver = false;
@@ -183,7 +218,6 @@
         let obstacleInterval;
         let gameLoop;
         
-        // Mảng cấu hình các chướng ngại vật (Có thể dùng ảnh hoặc Emoji dự phòng)
         const obstacleAssets = [
             { src: 'meo_1.jpg', fallback: '🧶' },
             { src: 'meo_2.jpg', fallback: '🐁' },
@@ -216,29 +250,25 @@
             const obstacle = document.createElement('div');
             obstacle.classList.add('obstacle');
             
-            // Lấy ngẫu nhiên 1 chướng ngại vật từ mảng
             const randomAsset = obstacleAssets[Math.floor(Math.random() * obstacleAssets.length)];
             
-            // Tạo thẻ ảnh
             const img = document.createElement('img');
             img.src = randomAsset.src;
             
-            // Nếu không tìm thấy file ảnh trong thư mục, tự động dùng Emoji thay thế
             img.onerror = () => {
                 obstacle.innerText = randomAsset.fallback;
                 obstacle.style.fontSize = '40px'; 
-                img.remove(); // Xóa thẻ ảnh bị lỗi
+                img.remove(); 
             };
 
             obstacle.appendChild(img);
             obstacle.style.animation = `moveObstacle ${gameSpeed}s linear`;
             scene.appendChild(obstacle);
 
-            // Bắt sự kiện khi chướng ngại vật chạy hết animation (ra khỏi màn hình)
             obstacle.addEventListener('animationend', () => {
                 if (!isGameOver && !isGameWon) {
                     obstacle.remove();
-                    updateScore(); // Gọi hàm cộng điểm
+                    updateScore(); 
                 }
             });
 
@@ -300,7 +330,11 @@
             clearTimeout(obstacleInterval);
             
             document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
+            
+            // Hiện overlay và gắn class để kích hoạt hiệu ứng nảy (Jelly Bounce)
             victoryScreen.style.display = 'flex';
+            victoryModal.classList.add('bounce-in');
+            
             createConfetti();
         }
 
@@ -314,10 +348,15 @@
             gameOverScreen.style.display = 'none';
             victoryScreen.style.display = 'none';
             
+            // Xóa class nảy khi chơi lại để lần sau thắng vẫn nảy tiếp
+            victoryModal.classList.remove('bounce-in');
+            
             cat.classList.add('running');
 
             document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
-            document.querySelectorAll('.confetti').forEach(c => c.remove());
+            
+            // Đã đổi class thành confetti-heart
+            document.querySelectorAll('.confetti-heart').forEach(c => c.remove());
 
             clearTimeout(obstacleInterval);
             clearInterval(gameLoop);
@@ -326,15 +365,28 @@
             gameLoop = setInterval(checkCollision, 10);
         }
 
+        // --- Cập nhật hàm tạo Cơn mưa trái tim ---
         function createConfetti() {
-            const colors = ['#C2185B', '#EC407A', '#F48FB1', '#FFF', '#FFD54F'];
-            for(let i=0; i<50; i++) {
+            // Sử dụng các icon dễ thương thay cho khối vuông
+            const cuteIcons = ['💖', '🌸', '✨', '🎀', '💗'];
+            
+            for(let i=0; i < 40; i++) {
                 let confetti = document.createElement('div');
-                confetti.classList.add('confetti');
+                confetti.classList.add('confetti-heart');
+                
+                // Chọn icon ngẫu nhiên
+                confetti.innerText = cuteIcons[Math.floor(Math.random() * cuteIcons.length)];
+                
+                // Trải đều theo chiều ngang của cảnh game (800px)
                 confetti.style.left = Math.random() * 800 + 'px';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Kích thước to nhỏ khác nhau
+                confetti.style.fontSize = (Math.random() * 15 + 15) + 'px';
+                
+                // Thời gian rơi và độ trễ ngẫu nhiên
                 confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDelay = (Math.random() * 1.5) + 's';
+                
                 scene.appendChild(confetti);
             }
         }
@@ -343,7 +395,3 @@
     </script>
 </body>
 </html>
-
-
-
-
