@@ -1,397 +1,158 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Run: Iu Mun Cute Pink Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@700&display=swap" rel="stylesheet">
-    <style>
-        /* Thiết lập nền chung */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #FCE4EC;
-            font-family: 'Mali', cursive;
-            user-select: none;
-        }
-
-        /* Khung cảnh chính */
-        #scene {
-            width: 800px;
-            height: 350px;
-            position: relative;
-            overflow: hidden;
-            background-color: #F8BBD0; 
-            border-bottom: 8px solid #C2185B; 
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(194, 24, 91, 0.2);
-            cursor: pointer;
-        }
-
-        /* Điểm số */
-        #score-board {
-            position: absolute;
-            top: 15px;
-            left: 20px;
-            font-size: 24px;
-            color: #C2185B;
-            font-weight: bold;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 5px 15px;
-            border-radius: 20px;
-            box-shadow: 2px 2px 0px #EC407A;
-        }
-
-        /* === 1. Hiệu ứng Mèo === */
-        #cat {
-            position: absolute;
-            bottom: 5px;
-            left: 50px;
-            z-index: 2;
-        }
-
-        #cat img {
-            width: 80px; 
-            height: auto;
-            display: block;
-        }
-
-        .running { animation: run 0.2s infinite alternate ease-in-out; }
-        @keyframes run {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-12px) rotate(-3deg); }
-        }
-
-        .jumping { animation: jump 0.6s linear !important; }
-        @keyframes jump {
-            0% { bottom: 5px; }
-            40% { bottom: 150px; } 
-            50% { bottom: 150px; } 
-            60% { bottom: 150px; }
-            100% { bottom: 5px; }
-        }
-
-        /* === 2. Chướng ngại vật === */
-        .obstacle {
-            position: absolute;
-            bottom: 5px;
-            right: -80px; 
-            z-index: 2;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .obstacle img { width: 50px; height: auto; }
-
-        @keyframes moveObstacle {
-            0% { right: -80px; }
-            100% { right: 850px; }
-        }
-
-        /* === 3. Màn hình Overlay chung === */
-        .overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(252, 228, 236, 0.9);
-            display: none; flex-direction: column; justify-content: center;
-            align-items: center; z-index: 20; text-align: center;
-        }
-
-        .overlay h2 { font-size: 40px; color: #C2185B; margin-bottom: 10px; text-shadow: 2px 2px 0px #FFF; }
-        .overlay img { width: 150px; max-height: 150px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        
-        .btn {
-            padding: 10px 30px; font-size: 20px; font-family: 'Mali', cursive; font-weight: bold;
-            color: white; background-color: #EC407A; border: none; border-radius: 25px;
-            cursor: pointer; box-shadow: 0 5px 0px #C2185B; transition: all 0.1s;
-        }
-        .btn:active { transform: translateY(5px); box-shadow: 0 0px 0px #C2185B; }
-
-        /* === 4. BẢNG THÔNG BÁO NHÚN NHẢY (VICTORY MODAL) === */
-        .modal-content {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 25px;
-            border: 5px dashed #F48FB1;
-            box-shadow: 0 15px 35px rgba(194, 24, 91, 0.3);
-            /* Mặc định ẩn để chờ animation */
-            transform: scale(0);
-        }
-
-        /* Animation nảy lên như thạch (Jelly Bounce) */
-        .bounce-in {
-            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.1); opacity: 1; }
-            70% { transform: scale(0.95); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* === 5. HIỆU ỨNG CƠN MƯA TRÁI TIM (HEART CONFETTI) === */
-        .confetti-heart {
-            position: absolute;
-            z-index: 25; /* Đè lên cả bảng thông báo */
-            pointer-events: none;
-            user-select: none;
-            animation: fall-and-sway linear infinite;
-        }
-
-        /* Hiệu ứng rơi lả tả và lắc lư nhẹ */
-        @keyframes fall-and-sway {
-            0% { top: -50px; transform: translateX(0) rotate(0deg); opacity: 1; }
-            50% { transform: translateX(30px) rotate(180deg); }
-            100% { top: 400px; transform: translateX(-30px) rotate(360deg); opacity: 0; }
-        }
-
-        /* === Mây và Chữ bay === */
-        #flying-text {
-            position: absolute; top: 50%; transform: translateY(-50%); left: 100%;
-            font-size: 45px; font-weight: bold; color: #FFFFFF;
-            text-shadow: 3px 3px 0px #EC407A, -2px -2px 5px rgba(255,255,255,0.5);
-            white-space: nowrap; animation: fly 5s infinite linear; z-index: 3;
-        }
-        @keyframes fly { 0% { left: 110%; } 100% { left: -60%; } }
-        
-        .cloud { position: absolute; color: rgba(255, 255, 255, 0.7); animation: cloud-move infinite linear; z-index: 1; }
-        .cloud1 { top: 40px; left: 100%; animation-duration: 12s; font-size: 40px; }
-        .cloud2 { top: 100px; left: 100%; animation-duration: 9s; animation-delay: 3s; font-size: 30px; }
-        .cloud3 { top: 20px; left: 100%; animation-duration: 15s; animation-delay: 1s; font-size: 25px; opacity: 0.6; }
-        .cloud4 { top: 150px; left: 100%; animation-duration: 10s; animation-delay: 5s; font-size: 35px; }
-        .cloud5 { top: 80px; left: 100%; animation-duration: 18s; animation-delay: 7s; font-size: 20px; opacity: 0.5; }
-        @keyframes cloud-move { 0% { left: 100%; opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { left: -20%; opacity: 0; } }
-
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Random Color Matrix</title>
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+#binaryRain{position:fixed;inset:0;width:100vw;height:100vh;background:#000;z-index:0}
+.screen-fx{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle at center,rgba(0,255,110,.08),transparent 30%),radial-gradient(circle at center,transparent 42%,rgba(0,0,0,.78) 100%)}
+main{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:18px}
+.matrix-card{width:min(84vmin,880px);aspect-ratio:1/1;padding:clamp(12px,2vmin,22px);border-radius:24px;border:1px solid rgba(0,255,110,.34);background:linear-gradient(180deg,rgba(0,30,8,.22),rgba(0,0,0,.9)),rgba(0,0,0,.8);box-shadow:0 0 24px rgba(0,255,110,.16),0 0 54px rgba(0,255,110,.08),inset 0 0 24px rgba(0,255,110,.09);backdrop-filter:blur(5px);overflow:hidden}
+#rgbMatrix{width:100%;height:100%;display:block;border-radius:16px;background:rgba(0,0,0,.94);box-shadow:inset 0 0 32px rgba(0,255,110,.12),inset 0 0 130px rgba(0,0,0,.62);cursor:pointer}
+.hint{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:3;color:rgba(146,255,186,.72);font-size:12px;letter-spacing:.08em;text-shadow:0 0 10px rgba(0,255,110,.45);text-align:center;user-select:none}
+</style>
 </head>
 <body>
-
-    <div id="scene">
-        <div id="score-board">Điểm: <span id="score">0</span></div>
-
-        <div class="cloud cloud1">☁️</div>
-        <div class="cloud cloud2">☁️</div>
-        <div class="cloud cloud3">☁️</div>
-        <div class="cloud cloud4">☁️</div>
-        <div class="cloud cloud5">☁️</div>
-        <div id="flying-text">Iu mun cute ❤️</div>
-        
-        <div id="cat" class="running">
-            <img src="meo.png" alt="Cute Cat">
-        </div>
-
-        <div id="game-over" class="overlay">
-            <h2>Ui da! Đụng trúng rồi!</h2>
-            <img src="meo_fail.jpg" alt="Mèo khóc" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Khoc'">
-            <button class="btn" onclick="startGame()">Chơi Lại Nè</button>
-        </div>
-
-        <div id="victory" class="overlay">
-            <div class="modal-content" id="victory-modal">
-                <h2>🎉 Yayyy! Mun Giỏi Quá! 🎉</h2>
-                <p style="color: #C2185B; font-weight: bold; font-size: 20px;">Đã đạt 305 điểm yêu thương ❤️</p>
-                <img src="meo_win.png" alt="Mèo vui vẻ" onerror="this.src='https://via.placeholder.com/150/F8BBD0/C2185B?text=Meo+Vui'">
-                <br>
-                <button class="btn" onclick="startGame()">Chơi Lại Từ Đầu</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const scene = document.getElementById('scene');
-        const cat = document.getElementById('cat');
-        const scoreElement = document.getElementById('score');
-        const gameOverScreen = document.getElementById('game-over');
-        const victoryScreen = document.getElementById('victory');
-        const victoryModal = document.getElementById('victory-modal'); // Bắt ID của bảng thông báo
-        
-        let isJumping = false;
-        let isGameOver = false;
-        let isGameWon = false;
-        let score = 0;
-        let gameSpeed = 2.5; 
-        let obstacleInterval;
-        let gameLoop;
-        
-        const obstacleAssets = [
-            { src: 'meo_1.jpg', fallback: '🧶' },
-            { src: 'meo_2.jpg', fallback: '🐁' },
-            { src: 'meo_3.jpg', fallback: '🐟' },
-            { src: 'meo_4.jpg', fallback: '🪴' },
-            { src: 'meo_5.jpg', fallback: '🥛' }
-        ];
-
-        function jump() {
-            if (isJumping || isGameOver || isGameWon) return;
-            isJumping = true;
-            cat.classList.remove('running');
-            cat.classList.add('jumping');
-
-            setTimeout(() => {
-                cat.classList.remove('jumping');
-                if (!isGameOver && !isGameWon) cat.classList.add('running');
-                isJumping = false;
-            }, 600); 
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') jump();
-        });
-        scene.addEventListener('mousedown', jump);
-
-        function spawnObstacle() {
-            if (isGameOver || isGameWon) return;
-
-            const obstacle = document.createElement('div');
-            obstacle.classList.add('obstacle');
-            
-            const randomAsset = obstacleAssets[Math.floor(Math.random() * obstacleAssets.length)];
-            
-            const img = document.createElement('img');
-            img.src = randomAsset.src;
-            
-            img.onerror = () => {
-                obstacle.innerText = randomAsset.fallback;
-                obstacle.style.fontSize = '40px'; 
-                img.remove(); 
-            };
-
-            obstacle.appendChild(img);
-            obstacle.style.animation = `moveObstacle ${gameSpeed}s linear`;
-            scene.appendChild(obstacle);
-
-            obstacle.addEventListener('animationend', () => {
-                if (!isGameOver && !isGameWon) {
-                    obstacle.remove();
-                    updateScore(); 
-                }
-            });
-
-            let randomTime = Math.random() * 1500 + 1000;
-            obstacleInterval = setTimeout(spawnObstacle, randomTime);
-        }
-
-        function updateScore() {
-            if (isGameOver || isGameWon) return;
-            score += 10; 
-            scoreElement.innerText = score;
-
-            if (score >= 305) {
-                winGame();
-                return;
-            }
-
-            if (score % 50 === 0 && gameSpeed > 1.0) {
-                gameSpeed -= 0.2; 
-            }
-        }
-
-        function checkCollision() {
-            const catRect = cat.getBoundingClientRect();
-            const obstacles = document.querySelectorAll('.obstacle');
-
-            obstacles.forEach(obs => {
-                const obsRect = obs.getBoundingClientRect();
-                const hitboxTolerence = 15; 
-
-                if (
-                    catRect.right - hitboxTolerence > obsRect.left &&
-                    catRect.left + hitboxTolerence < obsRect.right &&
-                    catRect.bottom - hitboxTolerence > obsRect.top &&
-                    catRect.top + hitboxTolerence < obsRect.bottom
-                ) {
-                    loseGame();
-                }
-            });
-        }
-
-        function loseGame() {
-            isGameOver = true;
-            cat.classList.remove('running', 'jumping');
-            clearInterval(gameLoop);
-            clearTimeout(obstacleInterval);
-            
-            document.querySelectorAll('.obstacle').forEach(obs => {
-                obs.style.animationPlayState = 'paused';
-            });
-
-            gameOverScreen.style.display = 'flex';
-        }
-
-        function winGame() {
-            isGameWon = true;
-            cat.classList.remove('running', 'jumping');
-            clearInterval(gameLoop);
-            clearTimeout(obstacleInterval);
-            
-            document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
-            
-            // Hiện overlay và gắn class để kích hoạt hiệu ứng nảy (Jelly Bounce)
-            victoryScreen.style.display = 'flex';
-            victoryModal.classList.add('bounce-in');
-            
-            createConfetti();
-        }
-
-        function startGame() {
-            isGameOver = false;
-            isGameWon = false;
-            score = 0;
-            gameSpeed = 2.5; 
-            scoreElement.innerText = score;
-            
-            gameOverScreen.style.display = 'none';
-            victoryScreen.style.display = 'none';
-            
-            // Xóa class nảy khi chơi lại để lần sau thắng vẫn nảy tiếp
-            victoryModal.classList.remove('bounce-in');
-            
-            cat.classList.add('running');
-
-            document.querySelectorAll('.obstacle').forEach(obs => obs.remove());
-            
-            // Đã đổi class thành confetti-heart
-            document.querySelectorAll('.confetti-heart').forEach(c => c.remove());
-
-            clearTimeout(obstacleInterval);
-            clearInterval(gameLoop);
-
-            spawnObstacle();
-            gameLoop = setInterval(checkCollision, 10);
-        }
-
-        // --- Cập nhật hàm tạo Cơn mưa trái tim ---
-        function createConfetti() {
-            // Sử dụng các icon dễ thương thay cho khối vuông
-            const cuteIcons = ['💖', '🌸', '✨', '🎀', '💗'];
-            
-            for(let i=0; i < 40; i++) {
-                let confetti = document.createElement('div');
-                confetti.classList.add('confetti-heart');
-                
-                // Chọn icon ngẫu nhiên
-                confetti.innerText = cuteIcons[Math.floor(Math.random() * cuteIcons.length)];
-                
-                // Trải đều theo chiều ngang của cảnh game (800px)
-                confetti.style.left = Math.random() * 800 + 'px';
-                
-                // Kích thước to nhỏ khác nhau
-                confetti.style.fontSize = (Math.random() * 15 + 15) + 'px';
-                
-                // Thời gian rơi và độ trễ ngẫu nhiên
-                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                confetti.style.animationDelay = (Math.random() * 1.5) + 's';
-                
-                scene.appendChild(confetti);
-            }
-        }
-
-        startGame();
-    </script>
+<canvas id="binaryRain" aria-hidden="true"></canvas>
+<div class="screen-fx" aria-hidden="true"></div>
+<main><section class="matrix-card" aria-label="Ma trận màu random thành ảnh gốc"><canvas id="rgbMatrix" title="Bấm để chạy lại hiệu ứng"></canvas></section></main>
+<div class="hint">RANDOM MÀU → ẢNH GỐC · CLICK ĐỂ CHẠY LẠI</div>
+<script>
+// Dán link ảnh GitHub của bạn vào đây.
+// Có thể dùng link raw.githubusercontent.com hoặc link github.com/.../blob/...
+const GITHUB_IMAGE_URL="https://raw.githubusercontent.com/USERNAME/REPO/main/path/to/image.jpg";
+const SOURCE_IMAGE=normalizeGithubImageUrl(GITHUB_IMAGE_URL);
+const rainCanvas=document.getElementById("binaryRain"),rainCtx=rainCanvas.getContext("2d");
+const matrixCanvas=document.getElementById("rgbMatrix"),matrixCtx=matrixCanvas.getContext("2d");
+const MATRIX_SIZE=64,GREEN="0,255,100",RANDOM_ONLY_DURATION=2400,RESOLVE_DURATION=5200;
+let dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2)),rainFontSize=16,rainColumns=[],rainLastTime=0,cells=[],sourceReady=false,animationStart=performance.now()+450,matrixLastFrame=0;
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function hash01(x,y,seed=0){const v=Math.sin(x*127.1+y*311.7+seed*79.3)*43758.5453123;return v-Math.floor(v)}
+function randomChannel(){return Math.floor(Math.random()*256)}
+function randomRgb(){return [randomChannel(),randomChannel(),randomChannel()]}
+function mix(a,b,t){return Math.round(a+(b-a)*t)}
+function resizeRain(){
+ dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2));
+ rainCanvas.width=Math.floor(window.innerWidth*dpr); rainCanvas.height=Math.floor(window.innerHeight*dpr);
+ rainCanvas.style.width=window.innerWidth+"px"; rainCanvas.style.height=window.innerHeight+"px";
+ rainCtx.setTransform(dpr,0,0,dpr,0,0);
+ rainFontSize=Math.max(15,Math.floor(window.innerWidth/92));
+ const count=Math.ceil(window.innerWidth/rainFontSize)+1;
+ rainColumns=Array.from({length:count},(_,i)=>createRainColumn(i));
+}
+function createRainColumn(i){
+ const changeInterval=220+Math.random()*320;
+ return {x:i*rainFontSize,y:-Math.random()*window.innerHeight,speed:.096+Math.random()*.336,length:8+Math.floor(Math.random()*15),bits:Array.from({length:28},()=>Math.random()>.5?"1":"0"),changeInterval,nextChangeAt:performance.now()+Math.random()*changeInterval,phase:Math.random()*1000};
+}
+function drawBinaryRain(now){
+ const delta=Math.min(40,now-rainLastTime||16); rainLastTime=now;
+ rainCtx.fillStyle="rgba(0,0,0,.06)"; rainCtx.fillRect(0,0,window.innerWidth,window.innerHeight);
+ rainCtx.font=rainFontSize+'px ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace';
+ rainCtx.textAlign="center"; rainCtx.textBaseline="top";
+ for(const col of rainColumns){
+  if(now>=col.nextChangeAt){
+   const flips=1+Math.floor(Math.random()*2);
+   for(let i=0;i<flips;i++){const idx=Math.floor(Math.random()*col.bits.length); col.bits[idx]=col.bits[idx]==="0"?"1":"0";}
+   col.nextChangeAt=now+col.changeInterval*(.9+Math.random()*.35);
+  }
+  for(let i=0;i<col.length;i++){
+   const y=col.y-i*rainFontSize;
+   if(y<-rainFontSize||y>window.innerHeight+rainFontSize)continue;
+   const bit=col.bits[(i+Math.floor(now*.0009+col.phase))%col.bits.length];
+   const head=i===0,tail=1-i/col.length,alpha=.03+tail*(head?.42:.18);
+   rainCtx.shadowColor=`rgba(${GREEN},${head?.16:.06})`; rainCtx.shadowBlur=head?4:1;
+   rainCtx.fillStyle=`rgba(${GREEN},${alpha})`; rainCtx.fillText(bit,col.x,y);
+  }
+  col.y+=col.speed*(delta/16);
+  if(col.y-col.length*rainFontSize>window.innerHeight+40){const reset=createRainColumn(Math.round(col.x/rainFontSize)); reset.x=col.x; reset.y=-Math.random()*180; Object.assign(col,reset);}
+ }
+ rainCtx.shadowBlur=0;
+}
+function resizeMatrixCanvas(){
+ const rect=matrixCanvas.getBoundingClientRect();
+ const size=Math.max(340,Math.floor(rect.width*dpr));
+ matrixCanvas.width=size; matrixCanvas.height=size; matrixCtx.setTransform(1,0,0,1,0,0);
+}
+function normalizeGithubImageUrl(url){
+ try{
+  const parsed=new URL(url);
+  if(parsed.hostname==="github.com"){
+   const parts=parsed.pathname.split("/").filter(Boolean);
+   const blobIndex=parts.indexOf("blob");
+   if(parts.length>=5&&blobIndex===2){
+    const user=parts[0],repo=parts[1],branch=parts[3],filePath=parts.slice(4).join("/");
+    return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${filePath}`;
+   }
+  }
+ }catch(error){
+  console.warn("GitHub image URL không hợp lệ, dùng nguyên URL ban đầu.");
+ }
+ return url;
+}
+function loadImage(src){return new Promise((resolve,reject)=>{const img=new Image(); img.crossOrigin="anonymous"; img.referrerPolicy="no-referrer"; img.onload=()=>resolve(img); img.onerror=reject; img.src=src;})}
+function buildTargetColorCells(img){
+ const off=document.createElement("canvas"); off.width=MATRIX_SIZE; off.height=MATRIX_SIZE;
+ const ctx=off.getContext("2d",{willReadFrequently:true});
+ ctx.fillStyle="rgb(0,0,0)"; ctx.fillRect(0,0,MATRIX_SIZE,MATRIX_SIZE);
+ const scale=Math.max(MATRIX_SIZE/img.width,MATRIX_SIZE/img.height);
+ const dw=img.width*scale, dh=img.height*scale, ox=(MATRIX_SIZE-dw)/2, oy=(MATRIX_SIZE-dh)/2;
+ ctx.drawImage(img,ox,oy,dw,dh);
+ const pixels=ctx.getImageData(0,0,MATRIX_SIZE,MATRIX_SIZE).data, center=(MATRIX_SIZE-1)/2;
+ cells=[];
+ for(let y=0;y<MATRIX_SIZE;y++) for(let x=0;x<MATRIX_SIZE;x++){
+  const index=y*MATRIX_SIZE+x, p=index*4, target=[pixels[p],pixels[p+1],pixels[p+2]];
+  const dx=(x-center)/center, dy=(y-center)/center, distance=Math.sqrt(dx*dx+dy*dy);
+  cells.push({target,current:randomRgb(),next:randomRgb(),lastRandomAt:0,randomInterval:100+Math.random()*220,resolveDelay:distance*.52+hash01(x,y,31)*.48,settleMs:380+hash01(x,y,44)*460});
+ }
+ sourceReady=true;
+}
+function restartAnimation(){
+ animationStart=performance.now()+250;
+ const center=(MATRIX_SIZE-1)/2;
+ for(let i=0;i<cells.length;i++){
+  const x=i%MATRIX_SIZE, y=Math.floor(i/MATRIX_SIZE), dx=(x-center)/center, dy=(y-center)/center, distance=Math.sqrt(dx*dx+dy*dy);
+  cells[i].current=randomRgb(); cells[i].next=randomRgb(); cells[i].lastRandomAt=0; cells[i].resolveDelay=distance*.52+hash01(x,y,Math.random()*100)*.48;
+ }
+}
+function getDisplayedRgb(cell,elapsed,now){
+ const resolveStart=RANDOM_ONLY_DURATION+cell.resolveDelay*RESOLVE_DURATION, resolveEnd=resolveStart+cell.settleMs;
+ if(elapsed<resolveStart){
+  if(now-cell.lastRandomAt>cell.randomInterval){cell.current=cell.next; cell.next=randomRgb(); cell.lastRandomAt=now;}
+  return cell.current;
+ }
+ if(elapsed<resolveEnd){
+  const t=clamp((elapsed-resolveStart)/cell.settleMs,0,1), e=t*t*(3-2*t);
+  return [mix(cell.current[0],cell.target[0],e),mix(cell.current[1],cell.target[1],e),mix(cell.current[2],cell.target[2],e)];
+ }
+ return cell.target;
+}
+function drawMatrix(now){
+ if(!sourceReady)return;
+ if(now-matrixLastFrame<40)return; matrixLastFrame=now;
+ const width=matrixCanvas.width, height=matrixCanvas.height, cell=width/MATRIX_SIZE, elapsed=now-animationStart;
+ matrixCtx.clearRect(0,0,width,height); matrixCtx.fillStyle="rgba(0,0,0,.97)"; matrixCtx.fillRect(0,0,width,height);
+ const gap=Math.max(.8,cell*.06), inner=Math.max(1,cell-gap*2), radius=Math.min(inner*.24,4*dpr);
+ for(let y=0;y<MATRIX_SIZE;y++) for(let x=0;x<MATRIX_SIZE;x++){
+  const rgb=getDisplayedRgb(cells[y*MATRIX_SIZE+x],elapsed,now), [r,g,b]=rgb;
+  const px=x*cell+gap, py=y*cell+gap;
+  matrixCtx.shadowColor=`rgba(${r},${g},${b},0.30)`;
+  matrixCtx.shadowBlur=cell*.25;
+  matrixCtx.fillStyle=`rgb(${r},${g},${b})`;
+  matrixCtx.beginPath();
+  matrixCtx.roundRect(px,py,inner,inner,radius);
+  matrixCtx.fill();
+ }
+ matrixCtx.shadowBlur=0;
+ matrixCtx.strokeStyle='rgba(255,255,255,0.035)'; matrixCtx.lineWidth=Math.max(.5,cell*.025);
+ for(let y=0;y<MATRIX_SIZE;y+=4){matrixCtx.beginPath(); matrixCtx.moveTo(0,y*cell+.5); matrixCtx.lineTo(width,y*cell+.5); matrixCtx.stroke();}
+}
+function animate(now){drawBinaryRain(now); drawMatrix(now); requestAnimationFrame(animate)}
+function resizeAll(){resizeRain(); resizeMatrixCanvas()}
+window.addEventListener("resize",resizeAll); matrixCanvas.addEventListener("click",restartAnimation); resizeAll();
+loadImage(SOURCE_IMAGE).then(img=>{buildTargetColorCells(img); requestAnimationFrame(animate)}).catch(err=>console.error("Không thể tải ảnh nguồn.",err));
+</script>
 </body>
 </html>
