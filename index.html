@@ -45,7 +45,7 @@ function resizeRain(){
 }
 function createRainColumn(i){
  const changeInterval=220+Math.random()*320;
- return {x:i*rainFontSize,y:-Math.random()*window.innerHeight,speed:.096+Math.random()*.336,length:8+Math.floor(Math.random()*15),bits:Array.from({length:28},()=>Math.random()>.5?"1":"0"),changeInterval,nextChangeAt:performance.now()+Math.random()*changeInterval,phase:Math.random()*1000};
+ return {x:i*rainFontSize,y:-Math.random()*window.innerHeight,speed: 0.24 + Math.random() * 0.72,length:8+Math.floor(Math.random()*15),bits:Array.from({length:28},()=>Math.random()>.5?"1":"0"),changeInterval,nextChangeAt:performance.now()+Math.random()*changeInterval,phase:Math.random()*1000};
 }
 function drawBinaryRain(now){
  const delta=Math.min(40,now-rainLastTime||16); rainLastTime=now;
