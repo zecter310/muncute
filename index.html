@@ -8,6 +8,7 @@
 *{box-sizing:border-box}
 html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#000;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
 #binaryRain{position:fixed;inset:0;width:100vw;height:100vh;background:#000;z-index:0}
+#heartFireworks{position:fixed;inset:0;width:100vw;height:100vh;z-index:4;pointer-events:none}
 .screen-fx{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle at center,rgba(0,255,110,.08),transparent 30%),radial-gradient(circle at center,transparent 42%,rgba(0,0,0,.78) 100%)}
 main{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:18px}
 .matrix-card{width:min(84vmin,880px);aspect-ratio:1/1;padding:clamp(12px,2vmin,22px);border-radius:24px;border:1px solid rgba(0,255,110,.34);background:linear-gradient(180deg,rgba(0,30,8,.22),rgba(0,0,0,.9)),rgba(0,0,0,.8);box-shadow:0 0 24px rgba(0,255,110,.16),0 0 54px rgba(0,255,110,.08),inset 0 0 24px rgba(0,255,110,.09);backdrop-filter:blur(5px);overflow:hidden}
@@ -17,6 +18,7 @@ main{position:relative;z-index:2;min-height:100vh;display:grid;place-items:cente
 </head>
 <body>
 <canvas id="binaryRain" aria-hidden="true"></canvas>
+<canvas id="heartFireworks" aria-hidden="true"></canvas>
 <div class="screen-fx" aria-hidden="true"></div>
 <main><section class="matrix-card" aria-label="Ma trận màu random thành ảnh gốc"><canvas id="rgbMatrix" title="Bấm để chạy lại hiệu ứng"></canvas></section></main>
 <div class="hint">CHÚC MỪNG SINH NHẬT MUN CUTE &#128147; &#128147; &#128147; &#128147; &#128147;</div>
@@ -26,14 +28,23 @@ main{position:relative;z-index:2;min-height:100vh;display:grid;place-items:cente
 const GITHUB_IMAGE_URL="https://github.com/zecter310/muncute/blob/94e1e348e84440a0b9d658454426ba9e9de23585/mun.jpg";
 const SOURCE_IMAGE=normalizeGithubImageUrl(GITHUB_IMAGE_URL);
 const rainCanvas=document.getElementById("binaryRain"),rainCtx=rainCanvas.getContext("2d");
+const heartCanvas=document.getElementById("heartFireworks"),heartCtx=heartCanvas.getContext("2d");
 const matrixCanvas=document.getElementById("rgbMatrix"),matrixCtx=matrixCanvas.getContext("2d");
 const MATRIX_SIZE=256,GREEN="0,255,100",RANDOM_ONLY_DURATION=2400,RESOLVE_DURATION=5200;
 let dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2)),rainFontSize=16,rainColumns=[],rainLastTime=0,cells=[],sourceReady=false,animationStart=performance.now()+450,matrixLastFrame=0;
+let heartParticles=[],nextHeartBurst=performance.now()+900;
 function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
 function hash01(x,y,seed=0){const v=Math.sin(x*127.1+y*311.7+seed*79.3)*43758.5453123;return v-Math.floor(v)}
 function randomChannel(){return Math.floor(Math.random()*256)}
 function randomRgb(){return [randomChannel(),randomChannel(),randomChannel()]}
 function mix(a,b,t){return Math.round(a+(b-a)*t)}
+function resizeHeartCanvas(){
+ heartCanvas.width=Math.floor(window.innerWidth*dpr);
+ heartCanvas.height=Math.floor(window.innerHeight*dpr);
+ heartCanvas.style.width=window.innerWidth+"px";
+ heartCanvas.style.height=window.innerHeight+"px";
+ heartCtx.setTransform(dpr,0,0,dpr,0,0);
+}
 function resizeRain(){
  dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2));
  rainCanvas.width=Math.floor(window.innerWidth*dpr); rainCanvas.height=Math.floor(window.innerHeight*dpr);
@@ -149,9 +160,63 @@ function drawMatrix(now){
  matrixCtx.strokeStyle='rgba(255,255,255,0.035)'; matrixCtx.lineWidth=Math.max(.5,cell*.025);
  for(let y=0;y<MATRIX_SIZE;y+=4){matrixCtx.beginPath(); matrixCtx.moveTo(0,y*cell+.5); matrixCtx.lineTo(width,y*cell+.5); matrixCtx.stroke();}
 }
-function animate(now){drawBinaryRain(now); drawMatrix(now); requestAnimationFrame(animate)}
-function resizeAll(){resizeRain(); resizeMatrixCanvas()}
-window.addEventListener("resize",resizeAll); matrixCanvas.addEventListener("click",restartAnimation); resizeAll();
+
+function createHeartFirework(cx,cy){
+ const count=220,scale=Math.min(window.innerWidth,window.innerHeight)*0.014;
+ for(let i=0;i<count;i++){
+  const t=Math.PI*2*i/count;
+  const hx=16*Math.pow(Math.sin(t),3);
+  const hy=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
+  const spread=.82+Math.random()*.32;
+  const speed=.018+Math.random()*.014;
+  heartParticles.push({
+   x:cx,y:cy,
+   vx:hx*scale*speed*spread,
+   vy:hy*scale*speed*spread,
+   life:1,
+   decay:.0065+Math.random()*.005,
+   size:1.2+Math.random()*2.1,
+   hue:320+Math.random()*25
+  });
+ }
+}
+function drawHeartFireworks(now){
+ heartCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+ if(now>nextHeartBurst){
+  createHeartFirework(
+   window.innerWidth*(.32+Math.random()*.36),
+   window.innerHeight*(.22+Math.random()*.24)
+  );
+  nextHeartBurst=now+1900+Math.random()*1700;
+ }
+ heartCtx.globalCompositeOperation="lighter";
+ for(let i=heartParticles.length-1;i>=0;i--){
+  const p=heartParticles[i];
+  p.x+=p.vx;
+  p.y+=p.vy;
+  p.vy+=.012;
+  p.vx*=.992;
+  p.vy*=.992;
+  p.life-=p.decay;
+  if(p.life<=0){
+   heartParticles.splice(i,1);
+   continue;
+  }
+  const alpha=Math.max(0,p.life);
+  heartCtx.beginPath();
+  heartCtx.shadowColor=`hsla(${p.hue},100%,72%,${alpha})`;
+  heartCtx.shadowBlur=14;
+  heartCtx.fillStyle=`hsla(${p.hue},100%,72%,${alpha})`;
+  heartCtx.arc(p.x,p.y,p.size,0,Math.PI*2);
+  heartCtx.fill();
+ }
+ heartCtx.globalCompositeOperation="source-over";
+ heartCtx.shadowBlur=0;
+}
+
+function animate(now){drawBinaryRain(now); drawMatrix(now); drawHeartFireworks(now); requestAnimationFrame(animate)}
+function resizeAll(){resizeRain(); resizeHeartCanvas(); resizeMatrixCanvas()}
+window.addEventListener("resize",resizeAll); matrixCanvas.addEventListener("click",()=>{restartAnimation();createHeartFirework(window.innerWidth*.5,window.innerHeight*.32)}); resizeAll();
 loadImage(SOURCE_IMAGE).then(img=>{buildTargetColorCells(img); requestAnimationFrame(animate)}).catch(err=>console.error("Không thể tải ảnh nguồn.",err));
 </script>
 </body>
