@@ -27,7 +27,7 @@ const GITHUB_IMAGE_URL="https://github.com/zecter310/muncute/blob/94e1e348e84440
 const SOURCE_IMAGE=normalizeGithubImageUrl(GITHUB_IMAGE_URL);
 const rainCanvas=document.getElementById("binaryRain"),rainCtx=rainCanvas.getContext("2d");
 const matrixCanvas=document.getElementById("rgbMatrix"),matrixCtx=matrixCanvas.getContext("2d");
-const MATRIX_SIZE=64,GREEN="0,255,100",RANDOM_ONLY_DURATION=2400,RESOLVE_DURATION=5200;
+const MATRIX_SIZE=96,GREEN="0,255,100",RANDOM_ONLY_DURATION=2400,RESOLVE_DURATION=5200;
 let dpr=Math.max(1,Math.min(window.devicePixelRatio||1,2)),rainFontSize=16,rainColumns=[],rainLastTime=0,cells=[],sourceReady=false,animationStart=performance.now()+450,matrixLastFrame=0;
 function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
 function hash01(x,y,seed=0){const v=Math.sin(x*127.1+y*311.7+seed*79.3)*43758.5453123;return v-Math.floor(v)}
@@ -134,7 +134,7 @@ function drawMatrix(now){
  if(now-matrixLastFrame<40)return; matrixLastFrame=now;
  const width=matrixCanvas.width, height=matrixCanvas.height, cell=width/MATRIX_SIZE, elapsed=now-animationStart;
  matrixCtx.clearRect(0,0,width,height); matrixCtx.fillStyle="rgba(0,0,0,.97)"; matrixCtx.fillRect(0,0,width,height);
- const gap=Math.max(.8,cell*.06), inner=Math.max(1,cell-gap*2), radius=Math.min(inner*.24,4*dpr);
+ const gap=Math.max(.35,cell*.035), inner=Math.max(1,cell-gap*2), radius=Math.min(inner*.18,2.5*dpr);
  for(let y=0;y<MATRIX_SIZE;y++) for(let x=0;x<MATRIX_SIZE;x++){
   const rgb=getDisplayedRgb(cells[y*MATRIX_SIZE+x],elapsed,now), [r,g,b]=rgb;
   const px=x*cell+gap, py=y*cell+gap;
